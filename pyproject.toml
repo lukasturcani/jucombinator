@@ -11,6 +11,29 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 
+[project.optional-dependencies]
+dev = [
+  "black",
+  "ruff",
+  "mypy",
+  "pytest",
+]
+
 
 [tool.maturin]
 features = ["pyo3/extension-module"]
+
+[tool.black]
+line-length = 79
+
+[tool.mypy]
+show_error_codes = true
+implicit_optional = false
+warn_no_return = true
+strict_optional = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+warn_unreachable = true
+disallow_any_generics = true
