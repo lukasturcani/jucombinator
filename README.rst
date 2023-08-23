@@ -10,7 +10,7 @@ Usage
 
   combinations = jucombinator.substitute(
       skeleton="c1ccc2cc3cc4cc5ccccc5cc4cc3cc2c1",
-      substituents=["N(C)C", "O", "N", "S", "C", "F", "N(=O)(=O)"],
+      substituents=["N(C)C", "O", "N", "S", "C", "F"],
       n=2,
   )
 
