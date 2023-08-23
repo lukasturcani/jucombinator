@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "jucombinator"
-requires-python = ">=3.7"
+requires-python = ">=3.11"
 classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
