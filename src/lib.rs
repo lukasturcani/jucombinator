@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use pyo3::prelude::*;
 
 #[derive(Clone, Copy)]
@@ -143,10 +144,62 @@ fn substitute_1(
         .collect()
 }
 
+fn substitute_at_indices(
+    skeleton: &Molecule,
+    substituents: &[&PyRef<Substituent>],
+    indices: &[usize],
+) -> SubstitutedMolecule {
+    let mut atomic_numbers = skeleton.atomic_numbers.clone();
+    let mut bonds = skeleton.bonds.clone();
+    for (&idx, &substituent) in indices.iter().zip(substituents) {
+        let num_atoms = atomic_numbers.len() as u16;
+        atomic_numbers.extend(substituent.atomic_numbers.iter());
+        bonds.extend(substituent.bonds.iter().map(|bond| Bond {
+            atom1_idx: bond.atom1_idx + num_atoms,
+            atom2_idx: bond.atom2_idx + num_atoms,
+            ..*bond
+        }));
+        bonds.push(Bond {
+            atom1_idx: idx as u16,
+            atom2_idx: num_atoms,
+            order: 1,
+        });
+    }
+    SubstitutedMolecule {
+        atomic_numbers,
+        bonds,
+        aromatic_bonds: skeleton.aromatic_bonds.clone(),
+    }
+}
+
+#[pyfunction]
+fn substitute(
+    skeleton: &Molecule,
+    substituents: Vec<PyRef<Substituent>>,
+    n: usize,
+) -> Vec<SubstitutedMolecule> {
+    skeleton
+        .atomic_numbers
+        .iter()
+        .zip(skeleton.num_implicit_hs.iter())
+        .enumerate()
+        .filter(|(_, (&atomic_number, &num_implicit_hs))| atomic_number == 6 && num_implicit_hs > 0)
+        .map(|(id, _)| id)
+        .combinations(n)
+        .flat_map(|indices| {
+            substituents
+                .iter()
+                .combinations_with_replacement(n)
+                .map(move |subs| substitute_at_indices(skeleton, &subs, &indices))
+        })
+        .collect()
+}
+
 /// A Python module implemented in Rust.
 #[pymodule]
 fn jucombinator(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(substitute_1, m)?)?;
+    m.add_function(wrap_pyfunction!(substitute, m)?)?;
     m.add_class::<AromaticBond>()?;
     m.add_class::<Bond>()?;
     m.add_class::<Molecule>()?;

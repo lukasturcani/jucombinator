@@ -42,3 +42,8 @@ def substitute_1(
     skeleton: Molecule,
     substituents: list[Substituent],
 ) -> list[SubstitutedMolecule]: ...
+def substitute(
+    skeleton: Molecule,
+    substituents: list[Substituent],
+    n: int,
+) -> list[SubstitutedMolecule]: ...

@@ -93,15 +93,26 @@ def _substituted_molecule_to_smiles(molecule: SubstitutedMolecule) -> str:
             aromatic_bond.atom2_idx,
             rdkit.BondType.AROMATIC,
         )
-    return rdkit.MolToSmiles(result.GetMol())
+    return rdkit.MolToSmiles(result.GetMol(), canonical=True)
 
 
-def substitute_1(skeleton: str, substituents: list[str]) -> list[str]:
+def substitute_1(skeleton: str, substituents: list[str]) -> set[str]:
     skeleton_ = _smiles_to_molecule(skeleton)
     substituents_ = list(map(_smiles_to_substituent, substituents))
-    return list(
+    return set(
         map(
             _substituted_molecule_to_smiles,
             jucombinator.substitute_1(skeleton_, substituents_),
+        )
+    )
+
+
+def substitute(skeleton: str, substituents: list[str], n: int) -> set[str]:
+    skeleton_ = _smiles_to_molecule(skeleton)
+    substituents_ = list(map(_smiles_to_substituent, substituents))
+    return set(
+        map(
+            _substituted_molecule_to_smiles,
+            jucombinator.substitute(skeleton_, substituents_, n),
         )
     )

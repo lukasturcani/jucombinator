@@ -1,5 +1,5 @@
 import rdkit.Chem as rdkit
-from jucombinator import substitute_1
+from jucombinator import substitute
 
 
 def to_canonical_smiles(smiles: str) -> str:
@@ -7,7 +7,7 @@ def to_canonical_smiles(smiles: str) -> str:
 
 
 def test_substitute_1() -> None:
-    result = set(map(to_canonical_smiles, substitute_1("CCC", ["Br", "NO"])))
+    result = set(map(to_canonical_smiles, substitute("CCC", ["Br", "NO"], 1)))
     expected = set(
         map(
             to_canonical_smiles,
@@ -26,7 +26,7 @@ def test_substitute_1() -> None:
 
 def test_substitute_1_aromatic() -> None:
     result = set(
-        map(to_canonical_smiles, substitute_1("Cc1cccc(C)c1", ["Br", "NO"]))
+        map(to_canonical_smiles, substitute("Cc1cccc(C)c1", ["Br", "NO"], 1))
     )
     expected = set(
         map(
