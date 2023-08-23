@@ -8,17 +8,37 @@ struct Bond {
     #[pyo3(get)]
     atom2_idx: u16,
     #[pyo3(get)]
-    order: f32,
+    order: u8,
 }
 
 #[pymethods]
 impl Bond {
     #[new]
-    fn new(atom1_idx: u16, atom2_idx: u16, order: f32) -> Self {
+    fn new(atom1_idx: u16, atom2_idx: u16, order: u8) -> Self {
         Self {
             atom1_idx,
             atom2_idx,
             order,
+        }
+    }
+}
+
+#[derive(Clone, Copy)]
+#[pyclass]
+struct AromaticBond {
+    #[pyo3(get)]
+    atom1_idx: u16,
+    #[pyo3(get)]
+    atom2_idx: u16,
+}
+
+#[pymethods]
+impl AromaticBond {
+    #[new]
+    fn new(atom1_idx: u16, atom2_idx: u16) -> Self {
+        Self {
+            atom1_idx,
+            atom2_idx,
         }
     }
 }
@@ -28,16 +48,23 @@ struct Molecule {
     atomic_numbers: Vec<u8>,
     num_implicit_hs: Vec<u8>,
     bonds: Vec<Bond>,
+    aromatic_bonds: Vec<AromaticBond>,
 }
 
 #[pymethods]
 impl Molecule {
     #[new]
-    fn new(atomic_numbers: Vec<u8>, num_implicit_hs: Vec<u8>, bonds: Vec<Bond>) -> Self {
+    fn new(
+        atomic_numbers: Vec<u8>,
+        num_implicit_hs: Vec<u8>,
+        bonds: Vec<Bond>,
+        aromatic_bonds: Vec<AromaticBond>,
+    ) -> Self {
         Self {
             atomic_numbers,
             num_implicit_hs,
             bonds,
+            aromatic_bonds,
         }
     }
 }
@@ -65,6 +92,8 @@ struct SubstitutedMolecule {
     atomic_numbers: Vec<u8>,
     #[pyo3(get)]
     bonds: Vec<Bond>,
+    #[pyo3(get)]
+    aromatic_bonds: Vec<AromaticBond>,
 }
 
 fn substitute_at_index(
@@ -83,12 +112,13 @@ fn substitute_at_index(
     }));
     bonds.push(Bond {
         atom1_idx: id as u16,
-        atom2_idx: num_atoms as u16,
-        order: 1.0,
+        atom2_idx: num_atoms,
+        order: 1,
     });
     SubstitutedMolecule {
         atomic_numbers,
         bonds,
+        aromatic_bonds: skeleton.aromatic_bonds.clone(),
     }
 }
 
@@ -117,6 +147,7 @@ fn substitute_1(
 #[pymodule]
 fn jucombinator(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(substitute_1, m)?)?;
+    m.add_class::<AromaticBond>()?;
     m.add_class::<Bond>()?;
     m.add_class::<Molecule>()?;
     m.add_class::<Substituent>()?;
