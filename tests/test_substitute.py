@@ -48,3 +48,33 @@ def test_substitute_1_aromatic() -> None:
         )
     )
     assert result == expected
+
+
+def test_substitute_2() -> None:
+    result = set(map(to_canonical_smiles, substitute("CCC", ["Br", "NO"], 2)))
+    expected = set(
+        map(
+            to_canonical_smiles,
+            [
+                "C(Br)C(NO)C",
+                "C(Br)CC(NO)",
+                "C(NO)C(Br)C",
+                "CC(Br)C(NO)",
+                "C(NO)CC(Br)",
+                "CC(NO)C(Br)",
+                "C(Br)C(Br)C",
+                "C(Br)CC(Br)",
+                "C(Br)C(Br)C",
+                "CC(Br)C(Br)",
+                "C(Br)CC(Br)",
+                "CC(Br)C(Br)",
+                "C(NO)C(NO)C",
+                "C(NO)CC(NO)",
+                "C(NO)C(NO)C",
+                "CC(NO)C(NO)",
+                "C(NO)CC(NO)",
+                "CC(NO)C(NO)",
+            ],
+        )
+    )
+    assert result == expected
